@@ -1,0 +1,124 @@
+      SUBROUTINE TSKIN_SOLVER(Tsurf,hskin)
+
+!     The subroutine TSKIN_SOLVER performs iterations to
+!     find the skin temperature from heat balance equation
+      use driving_params, only:
+     & path
+      use arrays, only:
+     & Tskin       
+      implicit none
+
+      real(8), intent(in) :: Tsurf
+      real(8), intent(out):: hskin
+
+      real(8) Tskin1,Tskin2,Tskin3,Balskin1,Balskin2,Balskin3
+      integer iter, maxiter
+      data          maxiter /100/
+
+      real(8), external:: HEATBALANCESKIN
+
+      logical firstcall
+      data    firstcall /.true./
+
+      if (firstcall) then
+        open (998,file=path(1:len_trim(path))//
+     &   'results/debug/iter_Tskin.dat')
+!        maxiter=10
+!        dt_scan = 5.
+      endif
+
+      Tskin1 = Tsurf - 10.
+      Tskin2 = Tsurf + 10.
+
+      Balskin1 = HEATBALANCESKIN(Tskin1,Tsurf,hskin) 
+      Balskin2 = HEATBALANCESKIN(Tskin2,Tsurf,hskin) 
+      if (Balskin1*Balskin2>0) then
+        STOP 
+     &   'Chorde method is not applicable 
+     &   for skin temperature equation: STOP'
+      endif
+
+!     print*, Balskin1, Balskin2
+
+      iter=0
+      Balskin3=1.
+      
+!     CHORDE METHOD TO FIND SURFACE TEMPERATURE
+
+      cyskin:
+     &do while (dabs(Balskin3)>0.1)
+       iter=iter+1
+       Balskin1 = HEATBALANCESKIN(Tskin1,Tsurf,hskin) 
+       Balskin2 = HEATBALANCESKIN(Tskin2,Tsurf,hskin) 
+       Tskin3=(Tskin1*Balskin2-Tskin2*Balskin1)/
+     &        (Balskin2-Balskin1)
+       Balskin3 = HEATBALANCESKIN(Tskin3,Tsurf,hskin) 
+       if (iter>maxiter) then
+        if (dabs(Tskin1-Tskin2)<0.01) then
+          write (998,*) Balskin3
+          exit cyskin
+        else
+          STOP 'Skin temperature iterations does not converge'
+        endif        
+       endif
+       if     (Balskin1*Balskin3<0.) then
+        Tskin2=Tskin3
+       elseif (Balskin2*Balskin3<0.) then
+        Tskin1=Tskin3
+       endif
+      enddo cyskin
+
+!     print*, 'Skin disbalance', Balskin3, Tskin3, hskin
+!     read*
+
+      Tskin = Tskin3
+
+      if (firstcall) firstcall=.false.
+      RETURN
+      END SUBROUTINE TSKIN_SOLVER
+
+
+
+      REAL(8) FUNCTION HEATBALANCESKIN(Tskin,Tsurf,hskin)
+      
+!     The function HEATBALANCESKIN computes the heat balance
+!     of the skin at the top of water coloumn
+
+      use phys_constants2, only:
+     & cw,
+     & row0,
+     & lamw0
+      use atmos, only:
+     & hflux,
+     & Elatent,
+     & Radbal   
+
+      implicit none
+
+      real(8), intent(in) :: Tskin
+      real(8), intent(in) :: Tsurf
+      real(8), intent(out):: hskin
+
+!     The thickness of skin, in future intended
+!     to be variable
+
+      real(8), save:: deltaskin
+      data            deltaskin /0.001/
+
+!     real(8) hskin
+
+      integer, save:: surftyp
+      data            surftyp /4/
+
+      call SENSLATMOM_FLUXES(Tskin)
+      call RADBALANCE       (Tskin,surftyp)
+
+      hskin = - lamw0*(Tsurf-Tskin)/deltaskin
+
+      HEATBALANCESKIN = Radbal-hflux-Elatent-hskin
+      
+      END FUNCTION HEATBALANCESKIN
+
+
+
+

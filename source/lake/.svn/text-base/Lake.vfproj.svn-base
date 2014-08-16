@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="9.10" ProjectIdGuid="{C1E896C8-9C65-4BF2-B1C4-CD0E6E6EE99F}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" OutputDirectory="$(SolutionDir)\Bin\$(ConfigurationName)" IntermediateDirectory="$(ProjectDir)\Bin\$(ConfigurationName)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLibrarianTool"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32" OutputDirectory="$(SolutionDir)\Bin\$(ConfigurationName)" IntermediateDirectory="$(ProjectDir)\Bin\$(ConfigurationName)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFLibrarianTool"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath=".\convectpar.f90"/>
+		<File RelativePath=".\heatbalsurf.for"/>
+		<File RelativePath=".\init.f90"/>
+		<File RelativePath=".\inout.f90"/>
+		<File RelativePath=".\lake.for"/>
+		<File RelativePath=".\lake_modules.for"/>
+		<File RelativePath=".\massflux_convection_v10.f90"/>
+		<File RelativePath=".\math_lib.for"/>
+		<File RelativePath=".\phys_func.for"/>
+		<File RelativePath=".\salinity.f90"/>
+		<File RelativePath=".\skin.for"/>
+		<File RelativePath=".\snow.for"/>
+		<File RelativePath=".\soil.for"/>
+		<File RelativePath=".\surf_scheme1.for"/>
+		<File RelativePath=".\surf_scheme2.for"/>
+		<File RelativePath=".\surf_scheme3.f90"/>
+		<File RelativePath=".\time.f90"/>
+		<File RelativePath=".\trib.for"/>
+		<File RelativePath=".\turb.f90"/></Filter></Files>
+	<Globals/></VisualStudioProject>

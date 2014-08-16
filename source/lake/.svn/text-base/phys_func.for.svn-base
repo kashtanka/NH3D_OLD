@@ -1,0 +1,435 @@
+      MODULE WATER_DENSITY
+      use phys_constants2, only:
+     & row0
+      implicit none
+
+!     The coefficients of UNESCO formula
+!     for water density dependence on temperature
+
+      real(8), parameter:: a0 = 800.969 d-7
+      real(8), parameter:: a1 = 588.194 d-7
+      real(8), parameter:: a2 = 811.465 d-8
+      real(8), parameter:: a3 = 476.600 d-10
+
+!     The coefficients of formula for
+!     water density dependence on temperature and salinity
+!     (McCutcheon et al.,Water Quality and Maidment. 
+!      Handbook on hydrology, 1993)
+      
+      real(8), parameter:: A11 = 288.9414 d0
+      real(8), parameter:: A12 = 508929.2 d0
+      real(8), parameter:: A13 = 68.12963 d0
+      real(8), parameter:: A14 = 3.9863   d0
+      real(8), parameter:: alpha1 = 8.2449 d-1
+      real(8), parameter:: alpha2 = 4.0899 d-3
+      real(8), parameter:: alpha3 = 7.6438 d-5
+      real(8), parameter:: alpha4 = 8.2467 d-7
+      real(8), parameter:: alpha5 = 5.3675 d-9
+      real(8), parameter:: beta1 = 5.724  d-3
+      real(8), parameter:: beta2 = 1.0227 d-4
+      real(8), parameter:: beta3 = 1.6546 d-6
+      real(8), parameter:: gamma1 = 4.8314 d-4
+        
+      contains
+      REAL(8) FUNCTION WATER_DENS_T_UNESCO(Temp)
+
+!     The function WATER_DENS_T_UNESCO
+!     returns the density of water, kg/m**3, 
+!     as a function of temperature 
+!     according to UNESCO formula
+      
+      implicit none
+
+      real(8), intent(in):: Temp
+      
+      WATER_DENS_T_UNESCO = 
+     &  row0*(1+a0+a1*Temp-a2*Temp**2+a3*Temp**3)
+      END FUNCTION WATER_DENS_T_UNESCO
+
+
+      REAL(8) FUNCTION WATER_DENS_TS(Temp,Sal)
+
+!     The function WATER_DENS_TS
+!     resturns the density of water, kg/m**3,
+!     as a function of temperature and salinity
+!     according to
+!     (McCutcheon et al.,Water Quality and Maidment. 
+!      Handbook on Hydrology, 1993)
+
+!     Input variables:
+ 
+!     Temp --- water temperature, deg C
+!     Sal  --- water salinity,    kg/kg
+      
+      implicit none
+
+      real(8), intent(in):: Temp
+      real(8), intent(in):: Sal
+
+      real(8) Sal_g_kg,A,B,C
+
+!     Converting salinity units from kg/kg to g/kg
+      Sal_g_kg = Sal*1.d+3
+
+!     The first term, dependent on temperature      
+      WATER_DENS_TS = row0*
+     & ( 1.-(Temp+A11)*(Temp-A14)**2/(A12*(Temp+A13) ) )
+
+      A =  alpha1         - alpha2*Temp    + alpha3*Temp**2
+     &    -alpha4*Temp**3 + alpha5*Temp**4
+
+      B = -beta1          + beta2*Temp     - beta3*Temp**2
+
+      C = gamma1
+
+!     Adding the second term, dependent on temperature and salinity
+      WATER_DENS_TS = WATER_DENS_TS +
+     & A*Sal_g_kg + B*Sal_g_kg**1.5 + C*Sal_g_kg**2.
+
+      END FUNCTION WATER_DENS_TS
+
+
+      REAL(8) FUNCTION DDENS_DTEMP(Temp,Sal)
+
+!     The function DDENS_DTEMP
+!     returns the derivative of water density
+!     on temperature, kg/(m**3*C)
+      
+!     Input variables:
+ 
+!     Temp --- water temperature, deg C
+!     Sal  --- water salinity,    kg/kg
+
+      implicit none
+
+      real(8), intent(in):: Temp
+      real(8), intent(in):: Sal      
+
+!     Note: the terms with salinity are omitted,
+!           i.e. this is the derivavive for fresh water
+
+      DDENS_DTEMP =
+     & -(row0/A12)*(Temp-A14)/( (Temp+A13)**2 )*
+     & ( (Temp+A13)*( (Temp-A14)+2.*(Temp+A11) ) -
+     &  (Temp+A11)*(Temp-A14) )
+
+      END FUNCTION DDENS_DTEMP
+      
+
+      REAL(8) FUNCTION DDENS_DSAL(Temp,Sal)
+
+!     The function DDENS_DSAL
+!     returns the derivative of water density
+!     on salinity, , kg/(m**3*kg/kg)
+      
+!     Input variables:
+ 
+!     Temp --- water temperature, deg C
+!     Sal  --- water salinity,    kg/kg
+
+      implicit none
+
+      real(8), intent(in):: Temp
+      real(8), intent(in):: Sal
+
+      real(8) Sal_g_kg,A,B,C
+
+!     Note: the dependency of A and B on temperature
+!           is omitted
+
+      A =  alpha1
+      B = -beta1
+      C =  gamma1
+	     
+!     Converting salinity units from kg/kg to g/kg
+      Sal_g_kg = Sal*1.d+3
+
+      DDENS_DSAL = 
+     & A + 1.5*B*Sal_g_kg**0.5 + 2.*C*Sal_g_kg
+
+      DDENS_DSAL = DDENS_DSAL*1.d+3
+
+      END FUNCTION DDENS_DSAL
+      END MODULE WATER_DENSITY
+
+
+      MODULE PHYS_FUNC
+      contains
+      REAL(8) FUNCTION TURB_DENS_FLUX(tempflux,salflux,Temp,Sal)
+
+!     Function TURB_DENS_FLUX            _____
+!     returns the turbulent density flux w'ro' in water
+!     at given temperature, 
+!              salinity,         ____
+!              temperature flux  w'T'
+!                                ____
+!          and salinity    flux  w's'
+
+!     Input variables:
+!     tempflux --- kinematic heat flux, m*C/s
+!     salflux  --- salinity       flux, m*(kg/kg)/s
+!     Temp     --- temperature        , C
+!     Sal      --- salinity           , kg/kg
+
+      use water_density, only:
+     & ddens_dtemp,
+     & ddens_dsal
+      
+      implicit none
+      
+      real(8), intent(in):: tempflux
+      real(8), intent(in):: salflux
+      real(8), intent(in):: Temp
+      real(8), intent(in):: Sal
+
+      TURB_DENS_FLUX = 
+     & ddens_dtemp(Temp,Sal)*tempflux + 
+     & ddens_dsal (Temp,Sal)*salflux
+
+      END FUNCTION TURB_DENS_FLUX
+
+   
+!      REAL(8) FUNCTION dirdif()
+!      use atmos, only:
+!     & shortwave
+!     implicit none
+!      real(8) cloud
+!      real(8) dirdif0,b,S0,sinh0
+!      common /cloud/ cloud
+!     data cloud /0./
+
+!      SAVE
+
+!      b=1./3.
+!      S0=1367.
+!      cloud = 0.
+    
+!      dirdif0 = (shortwave-b*S0*sinh0())/(b*(S0*sinh0()-shortwave))
+!      dirdif = dirdif0*(1.-sngl(cloud))
+!      dirdif = dmax1(dirdif,0.d0)
+      
+!      END FUNCTION dirdif
+
+
+      REAL(8) FUNCTION SINH0(year,month,day,hour)
+      use driving_params, only:
+     & phi_g
+
+!     SINH0 is sine of solar angle ( = cosine of zenith angle)   
+      
+      implicit none
+      
+      integer(4), intent(in):: year
+	integer(4), intent(in):: month
+	integer(4), intent(in):: day
+	real(8)   , intent(in):: hour
+
+      real(8) delta
+	real(8) theta
+	real(8) pi
+	real(8) phi_rad
+	
+      integer(4) nday
+
+      integer(4), external:: JULIAN_DAY
+    
+      pi=4.*datan(1.d0)
+
+      nday  = JULIAN_DAY(year,month,day)
+
+      delta = 23.5d0*pi/180.d0*dCOS(2*pi*(float(nday)-173.d0)/365.d0)
+      theta = pi*(hour-12.d0)/12.d0
+      phi_rad = phi_g*pi/180.d0
+      sinh0 = dSIN(phi_rad)*dSIN(delta)+
+     & dCOS(phi_rad)*dCOS(delta)*dCOS(theta)
+      sinh0=dmax1(sinh0,0.d0) 
+
+      END FUNCTION SINH0
+
+
+c_____________________________________________________________________________
+
+      REAL(8) FUNCTION QS(phase,t,p)
+      
+!     QS - specific humidity, kg/kg, for saturated water vapour
+
+      implicit none
+      real(8) t,p,aw,bw,ai,bi,a,b,es
+      integer(4) phase
+!phase = 1 - liquid, 0 - ice
+      aw = 7.6326    
+      bw = 241.9    
+      ai = 9.5  
+      bi = 265.5 
+      a  = phase*aw+(1-phase)*ai
+      b  = phase*bw+(1-phase)*bi
+      es=610.7*10.**(a*t/(b+t))
+      QS=0.622*es/p
+      END FUNCTION
+
+
+      REAL(8) FUNCTION ES(phase,t,p)
+      
+!     ES is pressure of saturated water vapour, Pa    
+
+      implicit none
+      real(8) t,p,aw,bw,ai,bi,a,b
+      integer(4) phase
+!phase = 1 - liquid, 0 - ice
+      aw = 7.6326    
+      bw = 241.9    
+      ai = 9.5  
+      bi = 265.5 
+      a  = phase*aw+(1-phase)*ai
+      b  = phase*bw+(1-phase)*bi
+      ES = 610.7*10.**(a*t/(b+t))
+      END FUNCTION
+
+      
+      REAL(8) FUNCTION MELTPNT(C)
+      implicit none
+      real(8) C, dtdc
+      
+      SAVE
+      
+      dtdc = 66.7
+      
+      MELTPNT = 0. - C*dtdc
+      END FUNCTION MELTPNT
+
+
+      SUBROUTINE TURB_SCALES(k_turb_T_flux,T_massflux,eflux0_kinem,h1,
+     & turb_density_flux,Buoyancy0, H_mixed_layer, w_conv_scale,
+     & T_conv_scale)
+      use driving_params, only:
+     & M
+      use phys_constants2, only:
+     & g,
+     & row0
+
+      implicit none
+
+!     Input variables
+      real(8), intent(in):: k_turb_T_flux(:)
+      real(8), intent(in):: T_massflux(:)
+      real(8), intent(in):: eflux0_kinem
+      real(8), intent(in):: h1
+      real(8), intent(in):: turb_density_flux
+	
+!     Output variables
+      
+      
+      real(8), intent(out):: Buoyancy0
+      real(8), intent(out):: H_mixed_layer
+      real(8), intent(out):: w_conv_scale
+      real(8), intent(out):: T_conv_scale
+
+!     Extrnal functions
+      real(8), external:: DZETA
+      
+!     Help variable
+      integer i, maxlocat      
+
+      Buoyancy0 = g/row0*turb_density_flux
+	
+      maxlocat = 1
+      do i = 2, M
+	if (k_turb_T_flux(i) + T_massflux(i) > 
+     &	 k_turb_T_flux(maxlocat) + T_massflux(maxlocat)) maxlocat = i
+      enddo
+      H_mixed_layer = DZETA(real(maxlocat)+0.5d0)*h1
+
+      w_conv_scale = (Buoyancy0*H_mixed_layer)**(1.d0/3.d0) 
+
+      T_conv_scale = -eflux0_kinem/w_conv_scale
+     
+      END SUBROUTINE TURB_SCALES
+	
+
+      REAL(8) FUNCTION W_SEDIM()
+!     The function W_SEDIM calculates the sedimentation speed
+!     of hydrosol particles      
+      implicit none
+	
+!     Currently the sedimentation speed is assumed to be constant,
+!     however it is dependent on many properties of both the
+!     particles and the liquid media	
+      W_SEDIM = 1.0d-5
+	
+      END FUNCTION W_SEDIM
+
+
+      FUNCTION WATER_ALBEDO(sinh0)
+      implicit none
+
+      real(8) :: WATER_ALBEDO
+
+!     Input variables
+      real(8), intent(in) :: sinh0
+
+!     Local variables
+      real(8), parameter :: const1 = 0.05d0
+      real(8), parameter :: const2 = 0.15d0
+
+      WATER_ALBEDO = const1/(sinh0 + const2)
+
+      END FUNCTION WATER_ALBEDO
+
+      
+	FUNCTION EXTINCT_SNOW(snow_density)
+	implicit none
+
+      real(8) :: EXTINCT_SNOW
+
+!     Input variables
+      real(8), intent(in) :: snow_density ! Snow density, kg/m**3
+
+!     Local variables
+      real(8), parameter :: const1 = 0.13d0
+      real(8), parameter :: const2 = 3.4d0
+
+      EXTINCT_SNOW = dexp(-(const1*snow_density+const2) )
+
+ 	END FUNCTION EXTINCT_SNOW
+
+
+      REAL(8) FUNCTION UNFRWAT(T,i)
+      use driving_params
+      use arrays
+      
+!    CALCULATION OF LIQUID WATER CONTENT IN FREEZING SOIL
+!    T - DEG. C; WLM0,WLM7,WLMAX - KG/KG
+
+      implicit none
+      real(8) T
+      integer(4) i
+
+      unfrwat = (WLM0(i)-WLM7(i))*dexp(T/3.) + WLM7(i)
+      !unfrwat = 0 
+      
+      RETURN
+      END FUNCTION UNFRWAT
+
+
+      REAL(8) FUNCTION WL_MAX(por,rosdry,wi)
+      use phys_constants2, only:
+     & row0, roi
+      implicit none
+      real(8), intent(in):: por,rosdry,wi
+
+      WL_MAX=por*row0/(rosdry*(1-por)) - wi*row0/roi
+      END FUNCTION WL_MAX
+
+
+      REAL(8) FUNCTION WI_MAX(por,rosdry)
+      use phys_constants2, only:
+     & roi
+      implicit none
+      real(8), intent(in):: por,rosdry
+
+      WI_MAX=por*roi/(rosdry*(1-por))
+      END FUNCTION WI_MAX
+
+
+
+      END MODULE PHYS_FUNC

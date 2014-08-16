@@ -1,0 +1,758 @@
+      MODULE phys_parameters
+      REAL(8) z_boundary,AZ0,ALB,whc,hcond,SNCR,CCT_veg,TBEST,FFTMIN,
+     &FFQMIN,AA_veg,BB_veg,CC_veg,PSI1_veg,PSI2_veg,DTL_veg,ROOTSM_veg,
+     &CCF_veg,DZZ,HR,SoilDensity,BH_soil,PSIMAX_soil,POR_soil,
+     &FLWMAX_soil,DLMAX_soil,WLM0_soil,WLM7_soil
+      INTEGER(4) VegetType
+      SAVE
+
+      contains
+
+      SUBROUTINE DEFINE_phys_parameters()
+      implicit none
+cccccccccccccccccccccc AIR cccccccccccccccccccccccc
+          z_boundary = 1000        ! height of planetary boundary layer (m)
+          AZ0 = 0.035              ! roughness lenght (m)
+          ALB = 0.23               ! albedo (1)
+
+cccccccccccccccccccccc SNOW cccccccccccccccccccccccc
+          whc = 0.04               ! water holding capacity of snow
+          hcond = 0.01              ! hydraulic conductivity in snow (m/s)
+          SNCR = 0.01                ! M OF WATER, FROM WHICH SNOW COVERS ALL THE CELL
+
+cccccccccccccccccccccc VEGETATION cccccccccccccccccccccccc
+          CCT_veg = 0.0016     ! DEPEND. CANOPY RESIST. ON TEMPERATURE (1/K)
+          TBEST = 298.15       ! LOWEST CANOPY RESIST. TEMPERATURE (K)
+          FFTMIN = 0.01        ! MINIMAL RESIST. COEFF. FOR TEMPERATURE (1)
+          FFQMIN = 0.01        ! MINIMAL RESIST. COEFF. FOR HUMIDITY (1)
+
+          VegetType = 7        ! 1 -- 13
+cc  OR:
+        AA_veg = 2582.0                    ! FOR LEAF RESISTANCE, J/M**3
+        BB_veg = 1.09                      ! FOR LEAF RESISTANCE, W/M**2
+        CC_veg = 110.0                     ! MINIMAL LEAF RESIST., S/M
+        PSI1_veg = - 120.                ! WATER POT. OF WILT BEGIN, M
+        PSI2_veg = - 230.                ! WATER POT. OF PERMANENT WILT, M
+        DTL_veg = 3.0                      ! MAX. LAI, DIMENSIONLESS
+        ROOTSM_veg = 0.5                   ! MAX. ROOTS LENGTH, M
+        CCF_veg = 0.0238*1000./0.622       ! DEPEND. CANOPY RESIST. ON HUMIDITY (1/mb)
+
+cccccccccccccccccccccc SOIL cccccccccccccccccccccc
+          DZZ = 5.             ! ACTUAL ST. DEV. OF TOPOGR. FOR RUNOFF CALC. (m)
+          HR = 0.08             ! LAYER OF SOIL FROM WHICH EVAPORATION EXISTS (m)
+          SoilDensity = 1200.    ! kg/m^3
+
+!         SoilType = 0         ! 1 -- 11
+cc  OR:
+          BH_soil     = 7.12             ! PARAMETER B, DIMENSIONLESS
+          PSIMAX_soil = - 0.0863         ! SAT. WATER POTENTIAL, M
+          POR_soil    = 0.401            ! POROSITY, DIMENSIONLESS
+          FLWMAX_soil = 0.0000063          ! SAT. HYDR. CONDUCTIVITY, M/S
+          FLWMAX_soil = 0.00002            ! SAT. HYDR. CONDUCTIVITY, M/S
+          DLMAX_soil  = 0.000003070          ! SAT. WATER DIFFUSIVITY, M**2/S
+          WLM0_soil   = 0.13             ! MAXIMAL UNFREEZING WATER AT 0C, kg/kg
+          WLM7_soil   = 0.06             ! MAXIMAL UNFREEZING WATER AT T<<0C, kg/kg
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      END SUBROUTINE DEFINE_phys_parameters
+      END MODULE phys_parameters
+
+
+      MODULE phys_constants
+      REAL(8) grav,PL,PLI,GPA,SIGSB,APPA,R,CP,RHOW,RHOI,CR,CWAT,CICE,
+     &CSNOW,WMG,WLMMX,CEFF,CA,DZL,DZG,BMIN,DMIN,DMAX,D,WIINF,ZRM,
+     &ZRMM,TRM,TOMIN,FLXMIN,CK,cpa
+      SAVE
+
+      contains
+
+      SUBROUTINE DEFINE_phys_constants()
+      implicit none
+cccccccccccccccccccccc COMMON cccccccccccccccccccccccc
+          grav = 9.81               ! acceleration due to gravity (m/s**2)
+          PL = 600.*4180.           ! latent heat for evapor./condens. (cal/g)    
+          PLI = 80.*4180.           ! latent heat for freezing/melting (cal/g)
+
+cccccccccccccccccccccc AIR cccccccccccccccccccccccc
+          CPA = 1008.                ! air specific heat content (Dg /(kg deg))
+          SIGSB = 5.67E-8    ! Stephan-Boltzman const.(Dg/(m**2 sec K**4))
+          APPA = 0.286              ! kappa = c_v/c_p
+          R = 287.                  ! universal gas constant
+          CP = 1004.
+
+cccccccccccccccccccccc SOIL and SNOW cccccccccccccccccccccccc
+          RHOW = 1000.                ! the liquid water density, kg/m**3
+          RHOI = 916.8            ! the ice density, kg/m**3
+          CR = 1008.               ! the soil specific heat content, Dg/(kg K)
+          CWAT = 4200.             ! the water specific heat content, Dg/(kg K)
+          CICE = 2100.               ! the ice specific heat content, Dg/(kg K)
+          CSNOW = 2100.              ! the snow specific heat content, Dg/(kg K)
+          WMG = 168.
+
+cccccccccccccccccccccc HYDROLOGY cccccccccccccccccccccc
+          WLMMX = 5.E-4        ! M. OF WATER. MINIMAL SKIN LAYER CAPACITY
+          CEFF = 0.5           ! 1 FRACTION OF INTERCEPTED BY SKIN LAYER PRECIP.
+          CA = 1.              ! 1 FRACTION OF THE CELL, COVERED BY PRECIP.
+          DZL = 100.           ! M. MINIMAL ST. DEV. OF TOPOGR. FOR RUNOFF CALC.
+          DZG = 1000.          ! M. MAXIMAL ST. DEV. OF TOPOGR. FOR RUNOFF CALC.
+          BMIN = 0.01          ! 1 MINIMAL B FOR RUNOFF CALC.
+          DMIN = 2.8E-10        ! M/S. COEFF. FOR SLOW DRAINAGE
+          DMAX = 2.8E-8        ! M/S. COEFF. FOR FAST DRAINAGE
+          D = 1.5              ! 1 COEFF. FOR FAST DRAINAGE
+          WIINF = 0.30         ! 1 SOIL ICE, FROM WHICH INFILTRATION BEGIN
+          ZRM = 0.1           ! M. LAYER OF SOIL WITH LARGE AMOUNT OF ROOTS
+          ZRMM = 0.2           ! M. LAYER OF SOIL FOR CALCULATION OF LAI AND VEG
+          TRM = 5.0            ! C. CRITICAL SOIL TEMPERATURE FOR LAI AND VEG
+          TOMIN = 0.1          ! C. CRITICAL TEMPERATURE FOR WATER ACCESS FOR CANOPY
+          FLXMIN = 1.05        ! CAL/(M**2*S) ACCURACY OF BALANCE AT THE SURFACE
+          CK = 0.9             ! 1 COEFF. FOR CANOPY RESIST.
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      END SUBROUTINE DEFINE_phys_constants
+      END MODULE phys_constants
+
+ 
+      MODULE PHYS_CONSTANTS2
+      real(8) g,roa0,row0,roi,cw,ci,Lwi,Lwv,Liv,kappa,
+     & roughnessofwater,albedoofwater,emissivityofwater, 
+     & sigma,cp,aMag,bMag,Rd,lami,lamw0,
+     & albedoofice,albedoofsnow,emissivityofice, sabs,
+     & emissivityofsnow,aMagw,aMagi,bMagw, bMagi, 
+     & emissivityofsoil,albedoofsoil,alsal
+      SAVE
+      
+      contains
+      SUBROUTINE DEFINE_PHYS_CONSTANTS2 
+      implicit none
+
+      g     = 9.814    ! acceleration due to gravity,               m/s**2
+      sigma = 5.67d-8  ! Stefan-Boltzman constant,                  W/(m**2*K**4)
+
+      roa0  = 1.273    ! referebnce density of air,                 kg/m**3
+      row0  = 1000.    ! reference density of water,                kg/m**3
+      roi   = 917.     ! density of ice,                            kg/m**3
+
+      cw    = 3990.    ! heat capacity of water,                    J/(kg*K)
+      ci    = 2150.    ! heat capacity of ice,                      J/(kg*K)
+      cp    = 1005.    ! heat capacity of air at constant pressure, J/(kg*K)
+
+      lami  = 2.2      ! molecular conductivity of ice,             J/(m*s*K)
+      lamw0 = 0.561    ! molecular conductivity of water,           J/(m*s*K)
+
+      Lwi   = 267900.  ! latent heat of freezing,                   J/kg
+      Lwv   = 2501000. ! latent heat of evaporation,                J/kg
+      Liv   = 2834600. ! latent heat of sublimation,                J/kg
+
+      kappa = 0.38     ! Karman constant,                           n/d 
+      Rd    = 287.05   ! gas constant for dry air,                  J/(kg*K)        
+
+      aMagw = 7.6326   ! coefficient for Magnus formula for water surface
+      bMagw = 241.9    ! coefficient for Magnus formula for water surface
+      aMagi = 9.5      ! coefficient for Magnus formula for ice   surface
+      bMagi = 265.5    ! coefficient for Magnus formula for ice   surface
+
+      albedoofwater = 0.08 ! albedo of water surface,               n/d
+      albedoofice   = 0.35 ! albedo of ice   surface,               n/d
+      albedoofsnow  = 0.62 ! albedo of snow  surface,               n/d 
+      albedoofsoil  = 0.3  ! albedo of soil  surface,               n/d
+
+      emissivityofwater = 0.95 ! emissivity of water surface,       n/d
+      emissivityofice   = 0.95 ! emissivity of ice   surface,       n/d
+      emissivityofsnow  = 0.99 ! emissivity of snow  surface,       n/d
+      emissivityofsoil  = 0.9  ! emissivity of soil  surface,       n/d
+
+      sabs         = 0.4 ! the part of solar radiation, absorbed by skin layer at the water surface
+      alsal        = 1.  ! the ratio of eddy diffusivity for salinity to those of heat
+
+      END SUBROUTINE DEFINE_PHYS_CONSTANTS2
+      END MODULE PHYS_CONSTANTS2
+
+
+      MODULE NUMERIC_PARAMS
+       integer(4), PARAMETER:: KL = 1,ML = 131,MS = 100,NT = 52592,
+     & Num_Soil = 11,Num_Veget = 13 
+       real(8), parameter:: dznorm = 0.05, dzmin = 0.01, 
+     & UpperLayer = 0.008 
+
+c         ML --- total number of layers
+c         MS --- maximal number of layers in snow
+c         dznorm --- standard layer depth in snow (m)
+c         dzmin --- min layer depth in snow (m)
+c         depth --- depth of the lowest layer in soil (m)
+c         UpperLayer --- upper soil layer depth (m)
+
+      END MODULE NUMERIC_PARAMS
+      
+
+      MODULE ATMOS
+
+      real(8) tempair,relhum,humair,pressure,hw,xlew,cdmw,trib_inflow,
+     & uwind,vwind,wind,longwave,Radbal,hflux,surfrad,hbal,zref,
+     & botflux,cdmw2,shortwave,precip,Sflux0,Elatent,Radbal_surf
+      real(8) eflux,eflux0,eflux0_kinem,hskin,tau,velfrict,
+     & velfrict_prev,cdm1,turb_density_flux
+      SAVE 
+
+      END MODULE ATMOS
+
+
+      MODULE DRIVING_PARAMS
+      
+c Switches: 1. PBL parameterization
+c              PBLpar =1 (Businger-Dayer formulas (Monin-Obukhov theory) for exchange coefficients)
+c              PBLpar =11(Businger-Dayer formulas with shallow water correction after Panin(19..))      
+c              PBLpar =2 (formulation from NH3d)
+c              PBLpar =21(formulation from NH3d with shallow water correction after Panin(19..))
+c           2. Relative to water currents wind
+c              relwind =1 (relative wind is off)
+c              relwind =2 (relative wind is on)
+c         3. Turbulent mixing parameterization
+c              Turbpar =1 (analytyical profile of turbulent conductivity)
+c              Turbpar =2 ("E-eps" parameterization of turbulent conductivity)        
+c              Turbpar =3 : Nickuradze (NICK) formulation: Rodi (1993)    
+c              Turbpar =4 : Parabolic (PARAB) formulation: Engelund (1976)
+c              Turbpar =7 : RNG (re-normalization group) formulation: Simoes (1998)     
+
+      integer, parameter:: nunit = 96
+
+      real(8) :: l10
+      real(8) :: h10
+      real(8) :: ls10
+      real(8) :: hs10
+      real(8) :: Ts0
+      real(8) :: Tb0
+      real(8) :: Tbb0
+      real(8) :: h_ML0
+      real(8) :: depth
+      real(8) :: Sals0
+      real(8) :: Salb0
+      real(8) :: Tm
+      real(8) :: kwe
+      real(8) :: kor
+      real(8) :: fetch
+      real(8) :: us0
+      real(8) :: vs0
+
+      real(8) :: lam_g
+      real(8) :: phi_g
+      real(8) :: dt_out
+      real(8) :: extwat
+      real(8) :: extice
+      real(8) :: alphax
+      real(8) :: alphay
+      real(8) :: a_veg
+      real(8) :: c_veg
+      real(8) :: h_veg
+      real(8) :: area_lake
+      real(8) :: sensflux0
+      real(8) :: momflux0
+      real(8) :: d_surf
+      real(8) :: d_bot
+
+!     The group of tributaries characteristics
+
+      integer(4) :: N_tribin
+      integer(4) :: N_tribout
+      integer(4) :: tribheat
+      real(8) :: trib_in
+      real(8), allocatable:: 
+     & U_tribin     (:,:), 
+     & U_tribout    (:,:),
+     & T_tribin     (:,:),
+     & width_tribin (:,:), 
+     & width_tribout(:,:)  
+      real(8), allocatable :: zTinitprof(:)
+      real(8), allocatable :: Tinitprof(:)
+
+!     In perspective, it is expected, that area_lake be an array,
+!     as the horizontal section of a lake varies with depth
+
+      integer(4) runmode,PBLpar,waveenh,relwind,Turbpar,varalb,skin,
+     & massflux,ifrad
+      integer(4) sedim
+      integer(4) M,ns,nscreen,SoilType,init_T,Tinitlength
+      integer(4) monthly_out,daily_out,hourly_out,time_series,
+     & everystep,turb_out, scale_output
+      integer(4) assim,as_window,error_cov
+
+      character*40 path
+      character*60 dataname,setupfile
+      
+      real(8),    external :: getvarval
+      integer(4), external :: igetvarval
+
+      SAVE
+      
+      contains
+      SUBROUTINE DEFINE_DRIVING_PARAMS()
+      
+!     DEFINE_driving_params reads files with driving parameters
+
+      implicit none
+      character(len=200) :: line
+      logical :: firstcall
+      data firstcall, line/.true., 'begin file'/
+      
+      if (firstcall) then
+       call CHECK_UNIT(nunit)
+       open  (nunit,file='setup_lake.dat',status='old')
+       read  (nunit,'(a)') line
+       read  (nunit,'(a)') setupfile
+       close (nunit)
+       open  (nunit,file=setupfile,status='old')
+       do while (line /= 'end')
+        read (nunit,'(a)') line
+        call READPAR(line)
+       enddo
+       close (nunit)
+       firstcall = .false. 
+      endif
+
+      END SUBROUTINE DEFINE_driving_params
+
+
+      SUBROUTINE READPAR(LINE)
+      implicit none
+
+      character(len=200) :: line
+      integer(4) :: i
+      integer(4) :: n2
+      integer(4) :: n1
+      integer(4) :: ncol
+      real(8), allocatable :: work(:,:)
+      
+      SAVE
+
+      i=1
+      if (line(1:1)==' '.or.line(1:1)==char(1)) then
+        do while (line(i:i)==' '.or.line(i:i)==char(1))
+          i=i+1
+        enddo
+        n1=i
+        do while (line(i:i)/=' '.and.line(i:i)/=char(1))
+          i=i+1
+        enddo
+        n2=i-1
+      else
+        n1=1
+        do while (line(i:i)/=' '.and.line(i:i)/=char(1))
+          i=i+1
+        enddo
+        n2=i-1
+      endif
+      
+      if (line(n1:n1)/='#') then
+
+!     The group of controls for model physics
+
+       SELECT CASE (line(n1:n2))
+       CASE ('PBLpar')
+        PBLpar   = igetvarval(n1,n2,line,'Param. of surf. fluxes   ')
+       CASE ('runmode')
+        runmode  = igetvarval(n1,n2,line,'Mode of model run        ')
+       CASE ('relwind')
+        relwind  = igetvarval(n1,n2,line,'Switch for relative wind ')
+       CASE ('waveenh')
+        waveenh  = igetvarval(n1,n2,line,'Switch for shal.wat.corr.')
+       CASE ('Turbpar')
+        Turbpar  = igetvarval(n1,n2,line,'Param. of turbulence     ')
+       CASE ('varalb')
+        varalb   = igetvarval(n1,n2,line,'Switch for variab. albedo')
+       CASE ('soiltype')
+        soiltype = igetvarval(n1,n2,line,'Soil type                ')
+       CASE ('skin')
+        skin     = igetvarval(n1,n2,line,'Switch for skin at surf. ')
+       CASE ('massflux')
+        massflux = igetvarval(n1,n2,line,'Switch for massflux conv.')
+       CASE ('ifrad')
+        ifrad    = igetvarval(n1,n2,line,'Switch for radiation     ')
+       CASE ('sensflux0')
+        sensflux0= getvarval (n1,n2,line,'Const. sens. flux, W/m**2')
+       CASE ('momflux0')
+        momflux0 = getvarval (n1,n2,line,'Const. mom. flux,  N/m**2')
+
+       CASE ('path')
+        read (line((n2+1):100),*) path
+        print*, 'path=', path
+
+!     The group of grid dimensions
+
+       CASE ('M')
+        M        = igetvarval(n1,n2,line,'Number of layers in water')
+       CASE ('ns')
+        ns       = igetvarval(n1,n2,line,'Number of layers in soil ')
+       CASE ('d_surf')
+        d_surf   = getvarval (n1,n2,line,'Surface zooming,     n/d ')
+       CASE ('d_bot')
+        d_bot    = getvarval (n1,n2,line,'Bottom zooming,      n/d ')
+
+!     The group of initial conditions
+
+       CASE ('h10')
+        h10      = getvarval (n1,n2,line,'Init. depth of lake, m   ')
+       CASE ('l10')
+        l10      = getvarval (n1,n2,line,'Init. ice thickness, m   ')
+       CASE ('ls10')
+        ls10     = getvarval (n1,n2,line,'Init. deep ice thick., m ')
+       CASE ('hs10')
+        hs10     = getvarval (n1,n2,line,'Init. snow depth, m      ')
+       CASE ('soil_depth')
+        depth    = getvarval (n1,n2,line,'Soil depth, m            ')
+       CASE ('Ts0')
+        Ts0      = getvarval (n1,n2,line,'Init. temp. at lake surf.')
+       CASE ('Tb0')
+        Tb0      = getvarval (n1,n2,line,'Init. temp. at lake bot. ')
+       CASE ('Tbb0')
+        Tbb0     = getvarval (n1,n2,line,'Init. temp. at soil bot. ')
+       CASE ('h_ML0')
+        h_ML0    = getvarval (n1,n2,line,'Init. mixed layer depth  ')
+       CASE ('Tm')
+        Tm       = getvarval (n1,n2,line,'Mean coloumn temperature ')
+       CASE ('init_T')
+        init_T   = igetvarval(n1,n2,line,'Switch for temp. init.   ')
+       CASE ('Sals0')
+        Sals0    = getvarval (n1,n2,line,'Init. surface salinity   ')
+       CASE ('Salb0')
+        Salb0    = getvarval (n1,n2,line,'Init. bottom salinity    ')
+       CASE ('us0')
+        us0      = getvarval (n1,n2,line,'Init. surface X-speed    ')
+       CASE ('vs0')
+        vs0      = getvarval (n1,n2,line,'Init. surface Y-speed    ')
+       CASE ('T_profile')
+        Tinitlength
+     &           =igetvarval (n1,n2,line,'Init. T-profile length   ') 
+        allocate (Tinitprof  (1:Tinitlength) )
+        allocate (zTinitprof (1:Tinitlength) )
+        ncol = 2
+        allocate (work(Tinitlength,ncol))
+        call READPROFILE(nunit,Tinitlength,ncol,work) 
+        zTinitprof(:) = work (:,1)
+        Tinitprof (:) = work (:,2)
+        deallocate(work)
+	          
+!      The group of output controls
+
+       CASE ('nscreen')
+        nscreen  = igetvarval(n1,n2,line,'Screen output interval   ')        
+       CASE ('monthly')
+        monthly_out
+     &           = igetvarval(n1,n2,line,'Monthly output switch    ')
+       CASE ('daily')
+        daily_out= igetvarval(n1,n2,line,'Daily output switch      ')
+       CASE ('hourly')
+        hourly_out
+     &           = igetvarval(n1,n2,line,'Hourly output switch     ')
+       CASE ('everystep')
+        everystep 
+     &           = igetvarval(n1,n2,line,'Everystep output switch  ')
+       CASE ('dt_out')
+        dt_out   = getvarval (n1,n2,line,'Output interval, hours   ')
+       CASE ('time_series')
+        time_series 
+     &           = igetvarval(n1,n2,line,'Time series output switch')
+       CASE ('turb_out')
+        turb_out = igetvarval(n1,n2,line,'Switch turb. char. output')
+       CASE ('scale_output')
+        scale_output =
+     &             igetvarval(n1,n2,line,'Switch turb. out. scaling')
+
+!     The group of physical properties
+
+       CASE ('extwat')
+        extwat   = getvarval (n1,n2,line,'The rad extinct in water ')
+       CASE ('extice')
+        extice   = getvarval (n1,n2,line,'The rad extinction in ice')
+       CASE ('alphax')
+        alphax   = getvarval (n1,n2,line,'The x-slope angle        ')
+       CASE ('alphay')
+        alphay   = getvarval (n1,n2,line,'The y-slope angle        ')
+       CASE ('c_veg')
+        c_veg    = getvarval (n1,n2,line,'c_veg                    ')
+       CASE ('a_veg')
+        a_veg    = getvarval (n1,n2,line,'a_veg                    ')
+       CASE ('h_veg')
+        h_veg    = getvarval (n1,n2,line,'The vegetation height    ')
+       CASE ('kwe')
+        kwe      = getvarval (n1,n2,line,'The wave break TKE-effect')
+       CASE ('kor')
+        kor      = getvarval (n1,n2,line,'The Coriolis parameter   ')
+       CASE ('phi')
+        phi_g    = getvarval (n1,n2,line,'Latitude, deg            ')
+       CASE ('lam')
+        lam_g    = getvarval (n1,n2,line,'Longitude, deg           ')
+       CASE ('fetch')
+        fetch    = getvarval (n1,n2,line,'The fetch, m             ')
+
+!     The group of data assimilation controls
+
+       CASE ('assim')
+        assim    = igetvarval(n1,n2,line,'The assimilation switch  ')
+       CASE ('as_window')
+        as_window= igetvarval(n1,n2,line,'Assimilation window      ')
+       CASE ('error_cov')
+        error_cov= igetvarval(n1,n2,line,'The switch for err_cov   ')
+
+!     The group of parameters of inflows and outflows
+
+       CASE ('tribheat')
+        tribheat = igetvarval(n1,n2,line,'Switch for trib. heat    ')
+       CASE ('trib_inflow')
+        trib_in  = getvarval (n1,n2,line,'Tributary inflow, m/yr   ')
+       CASE ('area_lake')
+        area_lake= getvarval (n1,n2,line,'The area of lake, m**2   ')
+       CASE ('inflowprof')
+          N_tribin = 1
+          allocate (width_tribin  (1:N_tribin ,1:M+1) )
+          allocate (U_tribin      (1:N_tribin ,1:M+1) )
+          allocate (T_tribin      (1:N_tribin ,1:M+1) )
+          ncol = 4
+          allocate (work(M+1,ncol))
+          call READPROFILE(nunit,M+1,ncol,work) 
+!         In current version there is only ONE inflow     
+          width_tribin(1,:) = work (:,2)
+          U_tribin    (1,:) = work (:,3)
+          T_tribin    (1,:) = work (:,4)
+          deallocate(work)
+       CASE ('outflowprof')
+          N_tribout = 1
+          allocate (width_tribout  (1:N_tribout ,1:M+1) )
+          allocate (U_tribout      (1:N_tribout ,1:M+1) )
+          ncol = 3
+          allocate (work(M+1,ncol))
+          print*, 'The profiles in inflow are done'
+          call READPROFILE(nunit,M+1,ncol,work) 
+!         In current version there is only ONE outflow 
+          width_tribout(1,:) = work (:,2)
+          U_tribout    (1,:) = work (:,3)
+          print*, 'The profiles in ouflow are done'
+          deallocate(work)
+        
+       CASE DEFAULT
+        if (.not.line(n1:n2)=='end') then
+         print*,'Unknown keyword [',line(n1:n2),'] in setup file: STOP'
+         STOP
+        endif
+       END SELECT
+
+      endif
+
+      END SUBROUTINE READPAR
+
+
+      SUBROUTINE READPROFILE(iunit,N_rows,N_coloumns,work)
+      implicit none
+
+!     Input variables:
+      integer(4), intent(in) :: iunit
+      integer(4), intent(in) :: N_rows
+      integer(4), intent(in) :: N_coloumns
+
+!     Output variables:
+      real(8), intent(out) :: work(N_rows, N_coloumns)
+
+!     Local variables
+      integer(4) :: i
+      integer(4) :: j
+
+      do i=1, N_rows
+        read(iunit,*) (work(i,j), j=1,N_coloumns)
+      enddo
+
+      END SUBROUTINE READPROFILE
+
+
+      END MODULE DRIVING_PARAMS
+
+
+
+
+      MODULE ARRAYS
+      
+!     MODULE ARRAYS contains allocatable arrays of the model  
+
+      use driving_params
+
+      integer(4) snow,ice,water,deepice,nstep 
+      real(8) time,tempairf,relhumf,humairf,pressuref,
+     & windf,shortwavef,longwavef,precipf,time_old,tempair_old, 
+     & relhum_old,humair_old,pressure_old,wind_old, 
+     & shortwave_old,longwave_old,precip_old,Erad,
+     & wdir_old,wdirf,dep_av
+      real(8) zinv
+      integer(4) time_int,time_int_old,man,par,flag_snow_init
+      real(8) totalevaps,totalmelts,totalprecips
+      real(8) Tskin
+      real(8) h1,l1,hs1,ls1
+      real(8) dhw,dhw0,dhi,dhi0,dls,dls0,dhwfsoil
+	real(8) Buoyancy0,H_mixed_layer, w_conv_scale,
+     & T_conv_scale
+      real(8) :: SR_botsnow
+      real(8), allocatable:: ddz    (:) , dz_full  (:), 
+     &                       z_full (:) , z_half   (:)
+      real(8), allocatable:: Tw1(:),Tw2(:),Ti1(:),Ti2(:),Tis1(:),
+     & Tis2(:),RS(:),SR(:),lamw(:),lamsal(:),Sal1(:),Sal2(:),
+     & Sals1(:),Sals2(:),SRi(:),SRdi(:)
+      real(8), allocatable:: Tsoil1(:),rosoil(:),csoil(:), 
+     & lamsoil(:), dzs(:), dzss(:), wi1(:), wl1(:), Tsoil2(:),
+     & zsoil(:), wsoil(:) 
+      real(8), allocatable:: S(:),Gen(:),F(:),TKE_turb_trans(:)
+      real(8), allocatable:: KT(:),k2(:),u1(:),v1(:),w1(:),
+     & E1(:),eps1(:)
+      real(8), allocatable:: WLM0(:),WLM7(:),bH(:),PSIMAX(:),POR(:),
+     & FLWMAX(:),DLMAX(:)
+      real(8), allocatable:: KC(:),KLengT(:),RSR(:) 
+      real(8), allocatable::l1_2d(:,:),h1_2d(:,:),ls1_2d(:,:),
+     & hs1_2d(:,:),time_2d(:,:) 
+      real(kind(0.d0)), allocatable:: dep_2d(:,:),cdm2(:,:)
+      real(8), allocatable::u_2d(:,:,:),v_2d(:,:,:),Tsoil1_2d(:,:,:),
+     & wi1_2d(:,:,:),wl1_2d(:,:,:),Tw1_2d(:,:,:),Ti1_2d(:,:,:),
+     & Tis1_2d(:,:,:),dz_2d(:,:,:),T_2d(:,:,:),wl_2d(:,:,:),
+     & dens_2d(:,:,:),E_2d(:,:,:),eps_2d(:,:,:),dhwfsoil_2d(:,:),
+     & Sal1_2d(:,:,:),Sals1_2d(:,:,:),Elatent_2d(:,:),dhw_2d(:,:),
+     & dhw0_2d(:,:),dhi_2d(:,:),dhi0_2d(:,:),dls0_2d(:,:),
+     & velfrict_2d(:,:),eflux0_kinem_2d(:,:),lamw_2d(:,:,:)
+      real(8), allocatable :: snmelt_2d(:,:)
+      integer(4), allocatable::fl_sn_2d(:,:),fl_sn_init_2d(:,:),
+     & itop_2d(:,:), init(:,:), num(:)
+      integer(4), allocatable :: nstep_2d(:,:)
+      real(8), allocatable:: Tsoil4(:), Tsoil3(:), 
+     & wl2(:), wl3(:), wl4(:), wl5(:),  
+     & wi2(:), wi3(:), lammoist(:), rosdry(:), filtr(:)
+      real(8), allocatable::E2(:),eps2(:),eps3(:),
+     & u2(:),v2(:),w2(:),k1(:),k3(:),k4(:),k5(:),u3(:),
+     & v3(:),C1aup(:),Re(:),row(:),Ri(:),uv(:),E_it1(:),
+     & E_it2(:),C_num(:),E_it3(:),Feps(:),E_it21(:),
+     & eps_it21(:),eps_it1(:),eps_it2(:),
+     & l(:),k2_mid(:),k3_mid(:),k4_mid(:),k5_mid(:),
+     & Um(:),Vm(:),E12(:),eps12(:),knum(:),k2t(:),
+     & Eeps(:),Ecent(:),Epscent(:),res_E(:),
+     & res_eps(:),dresd(:,:,:,:),dres2dE(:),dres2deps(:),
+     & veg_sw(:) 
+      real(8), allocatable:: WU_(:),WV_(:),GAMT(:),GAMU(:),GAMV(:),
+     & TF(:),KLengu(:)
+      real(8), allocatable:: PEMF    (:) , PDENS_DOWN (:),
+     &                       PT_DOWN (:) , PSAL_DOWN  (:),
+     &                       pt_down_f(:)
+      real(8), allocatable:: k_turb_T_flux(:), T_massflux(:)
+
+      data nstep /0/
+
+      SAVE
+
+      END MODULE ARRAYS
+
+      
+
+      MODULE TURB_CONST
+
+!     PHYSICAL CONSTANTS
+       real(8), parameter:: kar       = 0.4d0
+       real(8), parameter:: niu       = 1.007d-6
+       real(8), parameter:: roughness = 0.01d0 !water roughness          
+
+!     DIMENSIONLESS CONSTANTS IN E-EPS PARAMETERIZATION, according to Goudsmit et al., 2002
+       real(8), parameter:: CE0       = 0.09d0 
+       real(8), parameter:: CEt0      = 0.072d0
+       real(8), parameter:: ceps1     = 1.44d0
+       real(8), parameter:: ceps2     = 1.92d0
+       real(8), parameter:: sigmaE    = 1.d0
+       real(8), parameter:: sigmaeps  = 1.3d0
+!      sigmaeps  = 1.111d0, according to Burchard, 2002
+
+       real(8), parameter:: lam_T     = 1.d0 
+       real(8), parameter:: lam_gen   = 1.d0 
+       real(8), parameter:: lamTM     = 0.14d0
+
+!	 real(8), parameter:: cmu_0     = 0.094d0
+!      Other values for cmu_0, proposed in literature, are
+!      0.121, 0.077 - see Burchard, 2002
+
+       real(8), parameter:: lam_E0     = CE0/sigmaE   
+       real(8), parameter:: lam_eps0   = CE0/sigmaeps 
+
+!      The coefficients in formulas for stability functions (Canuto et al., 2001)
+       real(8), parameter:: CEcoef01   = 0.127d0
+	 real(8), parameter:: CEcoef02   = 0.1526d-1
+	 real(8), parameter:: CEcoef03   = 0.16d-3
+
+	 real(8), parameter:: CEtcoef01  = 0.1190d0
+	 real(8), parameter:: CEtcoef02  = 0.4294d-2
+	 real(8), parameter:: CEtcoef03  = 0.66d-3
+
+	 real(8), parameter:: CEcoef11   = 1.d0
+	 real(8), parameter:: CEcoef12   = 0.2d0
+	 real(8), parameter:: CEcoef13   = 0.315d-1
+	 real(8), parameter:: CEcoef14   = 0.58d-2
+	 real(8), parameter:: CEcoef15   = 0.4d-2
+	 real(8), parameter:: CEcoef16   = 0.4d-4
+	 
+!      The parameters of Mellor and Yamada model (1982)	 
+
+       real(8), parameter:: A1  =  0.92d0
+       real(8), parameter:: B1  =  1.66d+1
+       real(8), parameter:: C1  =  0.8d-1
+       real(8), parameter:: A2  =  0.74d0
+       real(8), parameter:: B2  =  1.01d+1
+
+!     Co is according to Satyanarayana et al., 1999
+       real(8), parameter:: Co        = 1.9d0
+
+!     CONSTANTS IN CONVECTION PARAMETERIZATION
+       real(8), parameter:: KC0       = 0.d0 !1.d+5 !500.
+       real(8), parameter:: dtdz0     = 2.d0
+
+!     CONSTANTS OF SIMOES'S PARAMETERIZATION
+       real(8), parameter:: Cs        = 1.5d0  !0.15
+       real(8), parameter:: Cs1       = 100.d0    
+      
+!     lo=0.4*ddz*h1*3.                                                         VS,06.2007
+       real(8), parameter:: L0        = 0.1d0
+
+       real(8), parameter:: CON0      = 0.05d0
+       real(8), parameter:: CON1      = 0.11d0
+       real(8), parameter:: CON2      = 1.56d0
+       real(8), parameter:: CONUV     = 1.d0
+
+      END MODULE TURB_CONST
+      
+      
+      MODULE assim_var
+      use driving_params
+      integer n_modvar, n_obsvar, size_mod, size_obs, ntim
+      
+      real(8), allocatable:: y_obs(:,:), x_mod(:,:), b_mod(:,:), 
+     & r_obs(:,:), h_obs(:,:), covar(:,:,:,:), c_diff(:,:,:),
+     & RpHBHT(:,:), dep_obs(:,:),y_obs_mean(:),x_mod_mean(:),
+     & delta(:)
+
+      SAVE
+     
+      contains
+      subroutine alloc_assim_var
+      n_modvar = 1
+      n_obsvar = 1
+      size_mod = (M+1)*n_modvar
+      size_obs = (M+1)*n_obsvar
+      
+      allocate (y_obs(1:ntim, 1:size_obs),
+     &          x_mod(1:ntim, 1:size_mod),
+     &          dep_obs(1:ntim, 1:size_obs))
+      allocate (r_obs(1:size_obs, 1:size_obs),
+     &          RpHBHT(1:size_obs,1:size_obs), 
+     &          b_mod(1:size_mod, 1:size_mod), 
+     &          h_obs(1:size_obs, 1:size_mod))
+      allocate (c_diff(1:M+1,1:n_obsvar,1:n_obsvar))
+      allocate (covar(1:M+1, 1:M+1, 1:n_obsvar, 1:n_obsvar))
+      allocate (y_obs_mean(1:size_obs),
+     &          x_mod_mean(1:size_mod),
+     &          delta     (1:size_obs))
+      
+      y_obs=0.
+      x_mod=0.
+      r_obs=0.
+      b_mod=0. 
+      h_obs=0.
+      c_diff=0.
+      covar=0.
+      end subroutine alloc_assim_var
+      
+      END MODULE assim_var
