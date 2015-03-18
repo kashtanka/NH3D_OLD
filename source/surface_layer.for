@@ -49,11 +49,11 @@ c   uvsuf: wind speed at the first model level
 c
         uvsuf(ix,iy)=dsqrt((0.5*(u(ix,iy,ns-1,3)+u(ix-1,iy,ns-1,3)))**2
      :     +(0.5*(v(ix,iy,ns-1,3)+v(ix,iy-1,ns-1,3)))**2) 
-        if (nstep*dt.le.10800.and.xsea(ix,iy).ne.0) then
-        tsurf(ix,iy)=tsfix(ix,iy)-30.+nstep*dt*30./10800.
-        else
+!        if (nstep*dt.le.7200.and.xsea(ix,iy).ne.0) then
+!        tsurf(ix,iy)=tsfix(ix,iy)-20.+nstep*dt*20./7200.
+!        else
         tsurf(ix,iy)=tsfix(ix,iy)
-        endif
+!        endif
         call extrpp(nx1,ny1,tsurf,1,nx1,1,ny1) 
 c
 c taixiy: air temperature on the first model level

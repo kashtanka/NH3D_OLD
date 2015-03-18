@@ -239,6 +239,10 @@ c
          enddo 
          
          endif
+
+ !                 do ix = 1,nx1
+ !           write(0,*) ix,w(ix,ny,ns-1,2),u(ix,ny,ns-1,2)
+ !           enddo
          
 	end subroutine thermo
 	
