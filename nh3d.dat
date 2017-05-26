@@ -12,14 +12,14 @@ verbose 0 (0) level of screen output: -1(none) 0(a bit) 1(a lot) 2(all) 3 (debug
 ####################################################################
 #following parameters MUST be given:
 #grid (nx,ny,ns)
-nx 7 ! nx-1 must be fft'able (2**n * 3**k * 5**m)
-ny 81  ! ny-1 must be fft'able
+nx 241 ! nx-1 must be fft'able (2**n * 3**k * 5**m)
+ny 161  ! ny-1 must be fft'able
 ns 47
 dx 5000.
 #6200.
 dy 5000.
 #5800.
-dt 1.
+dt 2.
 ntime 86400 !number of time steps of the experiment
 ptop  40000. !pressure at the top of the model
 #####################################################################
@@ -77,25 +77,25 @@ profile
 260    1       1       0       0
 12     12    12    12
 
-0	260	0	0.0	0	10.	0	1.1
-1000	265	1000	0.0	1000	10.	1000	0.9
-2000	270	2000	0.0	2000	10.	2000	0.7
-3000	275	3000	0.0	3000	10.	3000	0.3
-4000	280	4000	0.0	4000	10.	4000	0
-5000	285	5000	0.0	5000	10.	5000	0
-6000	290	6000	0.0	6000	10.	6000	0
-7000	295	7000	0.0	7000	10.	7000	0
-8000	300	8000	0.0	8000	10.	8000	0
-9000	305	9000	0.0	9000	10.	9000	0
-10000	310	10000	0.0	10000	10.	10000	0
-11000	315	11000	0.0	11000	10.	11000	0
-12000	320	12000	0.0	12000	10.	12000	0
+0	260	0	0.0	0	-10.	0	1.1
+1000	265	1000	0.0	1000	-10.	1000	0.9
+2000	270	2000	0.0	2000	-10.	2000	0.7
+3000	275	3000	0.0	3000	-10.	3000	0.3
+4000	280	4000	0.0	4000	-10.	4000	0
+5000	285	5000	0.0	5000	-10.	5000	0
+6000	290	6000	0.0	6000	-10.	6000	0
+7000	295	7000	0.0	7000	-10.	7000	0
+8000	300	8000	0.0	8000	-10.	8000	0
+9000	305	9000	0.0	9000	-10.	9000	0
+10000	310	10000	0.0	10000	-10.	10000	0
+11000	315	11000	0.0	11000	-10.	11000	0
+12000	320	12000	0.0	12000	-10.	12000	0
 ###################################################################
-fngrd 'results/sakhalin/test'  ! output grid files (grd format)
-fnmap 'map/sakhalin'          ! input grid files for surface parameters (soil model) 
+fngrd 'results/svalbard_5/test'  ! output grid files (grd format)
+fnmap 'map/svalbard_5'          ! input grid files for surface parameters (soil model) 
 #arctic_60km_12x_18ice_18water
 #fnmap 'map/lake_map'          ! input grid files for surface parameters (soil model)
-fnout 'results/sakhalin/test'  ! output data (unformatted) plus other output fields (e.g. profiles)
+fnout 'results/svalbard_5/test'  ! output data (unformatted) plus other output fields (e.g. profiles)
 fnrad 'series.rad'
 #####################################################################
 #optional parameters (all have default values)
@@ -107,9 +107,9 @@ centered .false.
 dst3 .false.
 xlatit 0.       (55.)   !latitude in degrees fcor is computed accordingly
 fcor   -999.     (-999.)
-fcori  1.25e-4
+fcori  1.432e-4
 ug0   0.0
-vg0   10. 
+vg0   -10. 
 ifsoil 0       (0)    !switch for soil model (0-off, 1-on, 2-simple soil without heat flux)
 tfix 1        switch for simple surface with fixed temperature (if ifsoil=0, if radpar=0 and if iflake=0)
 z0hz0 .1      (1.)   z0h/z0 only used if ifsoil=1
@@ -184,7 +184,7 @@ ntauspon 100              ! relaxation time (in timesteps) at the end of the spo
 #output switchs
 forout  .true.  (.true.)  produce formatted output on file [fngrd].out
 grdout  .true.  (.false.) formatted output is in grd format [fngrd]*.#
-iotfor  36000 (999999)  interval between formatted outputs (last one always on), if forout=.true.
+iotfor  3600 (999999)  interval between formatted outputs (last one always on), if forout=.true.
 iotunf  7200 (999999)  interval between unfformatted outputs (last one always on), if unfout=.true.
 unfout  .false. (.false.) produce unfformatted output on files [fnout].u[*]
 drgprt  .false.  (.false.) produce drag output on file [fngrd].dxy
@@ -220,8 +220,8 @@ echeck .false.  (.false)  " (debug)
 masout .false.  (.false.) " (debug)
 # output selection (planes)
 iomod 0  (iomod=0 means that the following selection is on, iomod=1 all sigma planes for debug, =2 all x planes, =3 all y planes)
-ixp 3,-1,-1,-1,-1,-1,-1,-1,-1,-1  select x-planes for formatted output
-iyp -1,-1,-1,-1,-1,-1,-1,-1,-1,-1  select y-planes for formatted output
+ixp -1,-1,-1,-1,-1,-1,-1,-1,-1,-1  select x-planes for formatted output
+iyp 20,40,60,-1,-1,-1,-1,-1,-1,-1  select y-planes for formatted output
 isp 46,-1,-1,-1,-1,-1,-1,-1,-1,-1  select sigma-planes for formatted output
 zplan -1,-1,-1,-1.,-1.,-1.,-1.,-1.,-1.,-1. select z-planes for formatted output
 zconst .true.  (.true.) vertical cross-sections are interpolated for a xz or yz grid

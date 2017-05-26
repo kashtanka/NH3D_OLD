@@ -1,0 +1,132 @@
+ 0 (0) level of screen output: -1(none) 0(a bit) 1(a lot) 2(all) 3 (debug
+ 151 ! nx-1 must be fft'able (2**n * 3**k * 5**m)                             
+ 181  ! ny-1 must be fft'able                                                 
+ 47                                                                           
+ 15000.                                                                       
+ 15000.                                                                       
+ 1.                                                                           
+ 86400 !number of time steps of the experiment                             
+  40000. !pressure at the top of the model                                  
+ 20001101060000 ! timeini must be set before profile                     
+ 'results/japsea/test'  ! output grid files (grd format)                   
+ 'map/japsea'          ! input grid files for surface parameters (soil mode
+ 'results/japsea/test'  ! output data (unformatted) plus other output field
+ 'series.rad'                                                              
+ .false. (.false.) !Choose false (true is not yet operational)       
+ 0 (1) !what to do about total mass (0) let it go; (1) preserve mass - g
+ .false. (.false.) !advanced, if .true. uses Room et al (2001) adjustment 
+ .true.                                                                     
+ .false.                                                                
+ .false.                                                                    
+ 0.       (55.)   !latitude in degrees fcor is computed accordingly       
+   -999.     (-999.)                                                        
+  1.25e-4                                                                  
+   0.0                                                                       
+   10.                                                                       
+ 0       (0)    !switch for soil model (0-off, 1-on, 2-simple soil without
+ 1        switch for simple surface with fixed temperature (if ifsoil=0, if 
+ .1      (1.)   z0h/z0 only used if ifsoil=1                               
+ 1       (0)    switch for water vapour (0-off, 1-on)                       
+ 0       (0)    switch for cloud water (0-off, 1-on)                        
+ 0       (0)    switch for rain water (0-off, 1-on)                         
+ 0       (0)    switch for cloud ice and snow in clouds (0-off,1-on)        
+    16     (0)    diffusion switch (0-no, 1- constant, 2- def depend., 12-d
+   0.     (0.)   constant diffusion (to add if iodif=2)                   
+    1.     (1.)   if 1. diffusion depends also on the richardson number    
+    1.     (1.)   apply diffusion to the reference state wind (us,vs)      
+    1.     (1.)   apply diffusion to the reference state theta profile (pts
+   0.     (0.)   drag coefficient for a bulk surface model                
+ 3                                                                        
+ 25                                                                         
+   0                                                                   
+ 0                                                                   
+ .false.	! switcher for perturbation of wind field                        
+ 	1800	! duration of nudging (in timesteps)                                
+ 0.001	! time scale of nudging                                          
+ 2	! time step for the start of nudging                                 
+ 30	! length scale of perturbation (in kilometers)                       
+	7.5	! amplitude of perturbation (in ms-1)                               
+ 1                                                                        
+ 0                                                                        
+ 0                                                                        
+ 1                                                                        
+ 0                                                                        
+ 0                                                                        
+ 1                                                                        
+ 1                                                                        
+   1      (0)       interval beteween smoothing, 0- no smoothing          
+   .true. (.true.)  smooth perturtabtions only                            
+   .true. (.true.)  horizontal smoothing on (if numsmo>0)                 
+   .false. (.true.)  vertical smoothing on (if numsmo>0)                  
+   .false. (.true.)  vertical smoothing for pt on (if numsmo>0)           
+   0.015  (0.015)   smoothing parameter for hsmo (horizontal filter) value
+   0.0625 (0.0625)  smoothing parameter for hsmo maximum value at the topo
+    0.001  (0.001)   smoothing parameter for vsmo (vertical filter) value b
+   0.001  (0.001)   smoothing parameter for vsmt maximum value at the topo
+     1.0e8   (1.0e8)    relaxation time at the bottom of the sponge layer   
+    100     (100)     relaxation time (in timesteps) at the top of the spon
+       8000.  (8000.)   bottom of the sponge lay im meters                    
+       15000. (18000.)  top of the sponge lay                                 
+ -1  (-1)                                                              
+ -1  (-1)                                                              
+ -1  (-1)                                                              
+ -1  (-1)                                                              
+ 100              ! relaxation time (in timesteps) at the end of the spo
+  .true.  (.true.)  produce formatted output on file [fngrd].out          
+  .true.  (.false.) formatted output is in grd format [fngrd]*.#          
+  36000 (999999)  interval between formatted outputs (last one always on),
+  7200 (999999)  interval between unfformatted outputs (last one always on
+  .false. (.false.) produce unfformatted output on files [fnout].u[*]     
+  .false.  (.false.) produce drag output on file [fngrd].dxy              
+  4800     (1)       interval between drag outputs                        
+ 10   (1)       interval between screen outputs                        
+  .true.   (.false.)  produce gridded output at z=const on file [fnout].mom
+ .true.   (.false.) !if .true. the domain for the drag computation is cent
+  7200      (20)      interval between momentum flux outputs              
+    300     (ns)       number of levels of mom flux and grid output         
+   20.    (500.)     distance between levels of mom flux and grid output   
+ .true.   (.true.)  produce profile output on file [fnout].pro            
+ .true.  (.true.)  produce formatted output at first time step            
+ .true.   (.true.)  " u,v,w,pt,theta,qv,cond,evap,qc,qr (water variables i
+ .true.   (.false)  " (all surface variables)                             
+ .true.   (.false)  " phi,wsig(vertical vel in sigma coord),rh(relative hu
+ .true.  (.false.)  " us,vs,pts,phis (reference state, maybe interesting i
+ .true.  (.false)  " Diffusion variables                                  
+ .true.  (.false)  " Richardson number                                    
+ .false.  (.false)  " (debug)                                             
+ .false.  (.true)   " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false)  " (debug)                                             
+ .false.  (.false.) " (debug)                                             
+ 0  (iomod=0 means that the following selection is on, iomod=1 all sigma pl
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1  select x-planes for formatted output         
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1  select y-planes for formatted output         
+ 46,-1,-1,-1,-1,-1,-1,-1,-1,-1  select sigma-planes for formatted output     
+ -1,-1,-1,-1.,-1.,-1.,-1.,-1.,-1.,-1. select z-planes for formatted output 
+ .true.  (.true.) vertical cross-sections are interpolated for a xz or yz 
+    .true.  (.true.) ! only relevant with rotation                       
+       0.1     (0.1) time filter (aselin)                                   
+     0.1     (0.1) time filter (aselin) for psuf                          
+     1       ! interval between updates of ref state at the surface       
+     1       ! interval between updates of ref state; this is not relevant
+     1       ! interval between updates of diffusion variables            
+    0      (0)   ! switch for lake model (0 - ISBA lake, 1 - LAKE model fo
+ 60     (1)   ! the period for updating lake parameters, timesteps (if 
+  60           ! the period for updating radiation fluxes, timsteps     
+    0                                                                     
+  0            ! relevant if radpar = 3, 1 - longwave parameterization i
+ 0            ! relevant if radpar = 3, 1 - shortwave parameterization 
+   1            ! relevant if radpar = 2                                 
+    2.           ! relevant if radpar = 2                                 
+ 0                                                                         
+ 3 30 46   !location of point output goes to file [fngrd]xnnnynnnsnnn.lo
+                                                                             
